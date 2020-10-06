@@ -18,18 +18,18 @@ package controllers
 
 import (
 	"context"
+	"reflect"
 
+	"github.com/go-logr/logr"
+	monitoringv1 "github.com/thedudeinhtx/fluentd-operator/api/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	monitoringv1 "github.com/thedudeinhtx/fluentd-operator/api/v1"
 )
 
 // FluentdReconciler reconciles a Fluentd object
@@ -43,8 +43,8 @@ type FluentdReconciler struct {
 // +kubebuilder:rbac:groups=monitoring.thedude.cc,resources=fluentds/status,verbs=get;update;patch
 
 func (r *FluentdReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx = context.Background()
-	log = r.Log.WithValues("fluentd", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("fluentd", req.NamespacedName)
 
 	fluentd := &monitoringv1.Fluentd{}
 	err := r.Get(ctx, req.NamespacedName, fluentd)
@@ -59,7 +59,7 @@ func (r *FluentdReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	found := &appsv1.Deployment{}
 	err = r.Get(ctx, types.NamespacedName{Name: fluentd.Name, Namespace: fluentd.Namespace}, found)
-	if err != nil  && errors.IsNotFound(err) {
+	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		dep := r.deploymentForFluentd(fluentd)
 		log.Info("Creating a new deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
@@ -96,7 +96,6 @@ func (r *FluentdReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 	}
 
-
 	return ctrl.Result{}, nil
 }
 
@@ -111,7 +110,6 @@ func (r *FluentdReconciler) deploymentForFluentd(m *monitoringv1.Fluentd) *appsv
 			Namespace: m.Namespace,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: ls,
 			},
@@ -124,12 +122,12 @@ func (r *FluentdReconciler) deploymentForFluentd(m *monitoringv1.Fluentd) *appsv
 						Image:   "fluentd:v1.11-1",
 						Name:    "fluentd",
 						Command: []string{"fluentd", "-m=64", "-o", "modern", "-v"},
-						}},
-					},
+					}},
 				},
 			},
-		}
-	
+		},
+	}
+
 	// Set Memcached instance as the owner and controller
 	ctrl.SetControllerReference(m, dep, r.Scheme)
 	return dep
@@ -149,7 +147,6 @@ func getPodNames(pods []corev1.Pod) []string {
 	}
 	return podNames
 }
-
 
 func (r *FluentdReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
