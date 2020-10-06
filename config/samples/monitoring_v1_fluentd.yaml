@@ -1,0 +1,7 @@
+apiVersion: monitoring.thedude.cc/v1
+kind: Fluentd
+metadata:
+  name: fluentd-sample
+spec:
+  # Add fields here
+  foo: bar

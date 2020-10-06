@@ -1,0 +1,11 @@
+domain: thedude.cc
+layout: go.kubebuilder.io/v2
+projectName: fluentd-operator
+repo: github.com/thedudeinhtx/fluentd-operator
+resources:
+- group: monitoring
+  kind: Fluentd
+  version: v1
+version: 3-alpha
+plugins:
+  go.sdk.operatorframework.io/v2-alpha: {}
