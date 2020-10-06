@@ -125,11 +125,11 @@ func (r *FluentdReconciler) deploymentForFluentd(m *monitoringv1.Fluentd) *appsv
 						Name:    "fluentd",
 						Command: []string{"fluentd", "-m=64", "-o", "modern", "-v"},
 						}},
-					}},
+					},
 				},
 			},
-		},
-	}
+		}
+	
 	// Set Memcached instance as the owner and controller
 	ctrl.SetControllerReference(m, dep, r.Scheme)
 	return dep
